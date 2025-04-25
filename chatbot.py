@@ -42,7 +42,7 @@ app.config['SECRET_KEY'] = 'choris-secret'
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
 
-model = GPT4All("gpt4all-13b-snoozy-q4_0.gguf", device="cuda")
+model = GPT4All("mistral-7b-instruct-v0.1.Q4_0.gguf", device="cuda")
 
 @app.route('/chat', methods=['POST'])
 def chat():
@@ -56,19 +56,33 @@ def chat():
 
     formatted_history = ""
     for item in session['history']:
-        role = "Usuário" if item['role'] == 'user' else "Chorão"
-        formatted_history += f"{role}: {item['content']}\n"
+        formatted_history += item['content'] + "\n"
 
     prompt = f"""
-Você é o Chorão BOT, assistente oficial do *Choris Skatepark*. 
-Fale apenas em português, de forma breve e objetiva.
-Você responde dúvidas sobre aluguel de pistas, valores, disponibilidade, dicas para skatistas (iniciante ou avançado), segurança, manutenção e modalidades (street, bowl, vertical). 
-Não fale sobre IA, nem sobre você. Nunca repita o que o usuário disse e evite frases genéricas como "obrigado por me contatar".
-Nunca fuja do universo do skate.
+Você é o **Chorão BOT**, o mano das pistas, assistente do *Choris Skatepark*.
 
-Histórico da conversa:
+Fala igual um skatista das ruas — estilo maloqueiro, direto e firmeza. 
+Responde dúvidas sobre:
+Aluguel de pistas (quanto custa, quanto tempo dá pra ficar, se tá liberado ou não)
+Horários e reservas
+Modalidades de skate (street, bowl, vertical)
+Dicas pra quem tá começando ou já tá na brisa faz tempo
+Regras do parque, segurança e manutenção
+
+Atenção:
+Só fala em **português** e na moral do rolê
+Nada de papo furado tipo “obrigado por me chamar”
+Não repete o que o mano falou
+Esquece esse lance de inteligência artificial, tu é o Chorão, firmeza?
+Só troca ideia sobre o universo do skate. Fora disso, ignora
+Preço dos horários, apenas estes:
+100 reais por uma hora
+200 reais por duas horas
+500 reais para o dia todo
+
+Manda no estilo: objetivo, sagaz e com aquele jeitão de quem vive a parada.
+
 {formatted_history}
-Chorão:
 """
 
     response = model.generate(prompt, max_tokens=200, temp=0.6)
